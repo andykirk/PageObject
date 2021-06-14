@@ -1,0 +1,21 @@
+{
+    "name": "akirk/pageobject",
+    "type": "library",
+    "description": "A Page Object",
+    "keywords": [""],
+    "homepage": "https://github.com/andykirk/PageObject",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andy Kirk",
+            "email": "andy@andykirk.net",
+            "homepage": "https://www.andykirk.net"
+        }
+    ],
+    "require": {
+        "php": ">=7.4.0"
+    },
+    "autoload": {
+        "psr-0": { "PageObject": "." }
+    }
+}
