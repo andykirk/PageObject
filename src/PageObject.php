@@ -13,12 +13,16 @@ namespace PageObject;
 #class PageObject implements \RecursiveIterator
 class PageObject
 {
+    protected $parent        = null;
+    
     protected $path          = '';
     protected $title         = '';
     protected $slug          = '';
+    protected $site_title    = '';
     protected $body          = '';
     protected $body_data     = [];
     protected $children      = [];
+    protected $children_map  = [];
     #protected $child_indices = [];
     #protected $index         = 0;
 
@@ -73,6 +77,33 @@ class PageObject
 
     protected function setSlug($value) {
         $this->slug = $this->slugify($value);
+
+        return true;
+    }
+    
+    public function setParent(&$parent) {
+        $parent->children[$this->path] = $this;
+        $parent->setChildrenMap($this->path, $this);
+        $this->parent =& $parent;
+    }
+    
+    public function setChildrenMap($key, &$child) {
+        $this->children_map[$key] =& $child;
+            
+        if (!empty($this->parent)) {
+            $this->parent->setChildrenMap($key, $child);
+        }
+    }
+    
+    public function setChildren($key, &$value) {
+        if ($key === false && is_array($value)) {
+            foreach($value as $k => $v) {
+                $this->setChildren($k, $v);
+            }
+        } else {
+            $this->children[$key] = $value;
+            $this->setChildrenMap($key, $value);
+        }
 
         return true;
     }
@@ -201,12 +232,14 @@ class PageObject
 
     public function getArrayPage($json = false) {
         $r = [
-            'path'      => $this->path,
-            'title'     => $this->title,
-            'slug'      => $this->slug,
-            'body'      => $this->body,
-            'body_data' => $this->body_data,
-            'children'  => $this->getArrayChildren()
+            'path'          => $this->path,
+            'site_title'    => $this->site_title,
+            'title'         => $this->title,
+            'slug'          => $this->slug,
+            'body'          => $this->body,
+            'body_data'     => $this->body_data,
+            'children'      => $this->getArrayChildren(),
+            'children_map'  => $this->children_map
         ];
 
         if ($json) {
