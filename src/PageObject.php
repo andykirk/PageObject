@@ -13,16 +13,18 @@ namespace PageObject;
 #class PageObject implements \RecursiveIterator
 class PageObject
 {
-    protected $parent        = null;
-    
-    protected $path          = '';
-    protected $title         = '';
-    protected $slug          = '';
-    protected $site_title    = '';
-    protected $body          = '';
-    protected $body_data     = [];
-    protected $children      = [];
-    protected $children_map  = [];
+    protected $parent           = null;
+                                
+    protected $path             = '';
+    protected $title            = '';
+    protected $slug             = '';
+    protected $site_title       = '';
+    protected $body             = '';
+    protected $body_data        = [];
+    protected $children         = [];
+    protected $children_map     = [];
+    protected $head_stylesheets = [];
+    protected $head_style       = '';
     #protected $child_indices = [];
     #protected $index         = 0;
 
@@ -232,15 +234,20 @@ class PageObject
 
     public function getArrayPage($json = false) {
         $r = [
-            'path'          => $this->path,
-            'site_title'    => $this->site_title,
-            'title'         => $this->title,
-            'slug'          => $this->slug,
-            'body'          => $this->body,
-            'body_data'     => $this->body_data,
-            'children'      => $this->getArrayChildren(),
-            'children_map'  => $this->children_map
+            'path'             => $this->path,
+            'site_title'       => $this->site_title,
+            'title'            => $this->title,
+            'slug'             => $this->slug,
+            'head_stylesheets' => $this->head_stylesheets,
+            'head_style'       => $this->head_style,
+            'body'             => $this->body,
+            'body_data'        => $this->body_data,
+            'children'         => $this->getArrayChildren($json)
         ];
+        
+        foreach ($this->children_map as $path => $child) {
+            $r['children_map'][$path] = $child->getArrayPage($json);
+        }
 
         if ($json) {
             return json_encode($r, true);
@@ -249,10 +256,10 @@ class PageObject
         }
     }
 
-    public function getArrayChildren() {
+    public function getArrayChildren($json = false) {
         $r = [];
         foreach ($this->children as $key => $child) {
-            $r[$key] = $child->getArrayPage();
+            $r[$key] = $child->getArrayPage($json);
         }
         return $r;
     }
